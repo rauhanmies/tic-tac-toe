@@ -1,0 +1,227 @@
+<!-- Tic Tac Toe by Jarmo Seppänen ja Tuomas Markkanen -->
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="mystyle-final.css">
+<meta charset="UTF-8">
+<script>
+// grid variable, affects whole game as universal number
+var grid;
+// win counter variables
+var wins0 = 0;
+var wins1 = 0;
+
+class Game
+{   // ask user input for dynamic grid size
+	constructor() {
+        grid = parseInt(prompt("Enter size of the gamegrid: ", "3"));
+
+        if(isNaN(grid)) {
+            // takes only number input
+            if(confirm("Only numbers are accepted")) var mygame = new Game();
+        }
+        else {
+            // max size of grid
+            if (grid > 16) {
+                if (confirm("That's quite a big grid. Maybe something under 16..")) {
+                        var mygame = new Game();
+                }
+                // "exit" game if cancel pressed
+                else {
+                    location.reload();
+                }
+            }     
+        }
+        // draw grid
+        this.player = 0;
+        this.mygamegrid = [];
+            var H = grid,
+                W = grid;
+
+        for ( var y = 0; y < H; y++ ) {
+            this.mygamegrid[ y ] = [];
+            for ( var x = 0; x < W; x++ ) {
+                this.mygamegrid[ y ][ x ] = "-1";
+    		}
+		}
+		this.initializegrid();
+	}
+    
+    initializegrid() {
+        // variable for button size / display size / grid size
+        var button_sizit = 100 / grid;
+        // refresh gamegrid
+        var list = document.getElementById("mygametable");
+        var child = list.lastElementChild;
+        while (child) {
+            list.removeChild(child);
+            child = list.lastElementChild;
+        }
+        document.getElementById("mygameinfo").innerHTML = "X starts game";
+        for (var iterA=0; iterA < grid; iterA++) {
+        	for (var iterB=0; iterB < grid; iterB++) {
+
+              // create dynamical button (unicode for no-brake space)
+              let button = document.createElement("button");
+
+              //add functionality to each button
+              button.setAttribute("yyy", iterA);
+              button.setAttribute("xxx", iterB);
+              button.setAttribute("id", "button_"+iterA+"_"+iterB);
+              // set button size to match gamegrid/display
+              button.style.width=button_sizit+"%";
+              button.style.height=button_sizit+"%";
+              button.innerHTML="<span>-</span>"          
+              //add event handler
+              button.addEventListener("click", function(event) {
+
+              //this is code event handler runs when clicked
+              mygame.buttoneventhandler(button.getAttribute("yyy"), button.getAttribute("xxx"));
+            }); 
+
+              // add button to list
+              list.appendChild(button);
+            }
+            var linebreak = document.createElement("br");
+            list.appendChild(linebreak);
+        }
+    }
+
+    buttoneventhandler(iterA,iterB) {
+		// change grid to show changes
+		// X's turn...
+		if (mygame.player == 0) {
+        	document.getElementById("button_"+iterA+"_"+iterB).innerHTML = "<span>X</span>";
+        	mygame.mygamegrid[iterA][iterB] = 0;
+        }
+        // O's turn...
+        else {
+        	document.getElementById("button_"+iterA+"_"+iterB).innerHTML = "<span>O</span>";
+        	mygame.mygamegrid[iterA][iterB] = 1;
+        }    
+        // disable pressed button
+        document.getElementById("button_"+iterA+"_"+iterB).disabled = true;
+        let playerwon = false;
+
+    // check for victory
+
+        // player has full lined to column direction
+        for (var k=0; k < grid; k++) {
+
+            var won=true;
+            for (var i=0; i < grid; i++) {
+                if (mygame.mygamegrid[k][i] != mygame.player) {
+                    won=false;
+                    break;
+                }
+            }
+        	if (won == true) {
+        		playerwon = true;
+        	}
+        }
+        // player has full lined to row direction
+        for (var k=0; k < grid; k++) {
+
+            var won=true;
+            for (var i=0; i < grid; i++) {
+                if (mygame.mygamegrid[i][k] != mygame.player) {
+                    won=false;
+                    break;
+                }
+            }
+        	if (won == true) {
+        		playerwon = true;
+        	}
+        }
+        // player has full lined diagonal direction left top to bottom
+        var i=0;
+        var won=false;
+        var woncount=0;
+        for (var k=0; k < grid; k++) {
+
+        	if (mygame.mygamegrid[i][k] == mygame.player) {
+        		woncount++
+            }
+            if (woncount >= grid) {
+            	won=true;
+            }
+
+            i++;
+
+        	if (won == true) {
+        		playerwon = true;
+        	}
+        }
+        // player has full lined diagonal direction right top to bottom
+        var i=grid -1;
+        var won=false;
+        var woncount=0;
+        for (var k=0; k < grid; k++) {
+
+        	if (mygame.mygamegrid[k][i] == mygame.player) {
+        		woncount++
+            }
+            if (woncount == grid) {
+            	won=true;
+            }
+
+            i--;
+
+        	if (won == true) {
+        		playerwon = true;
+        	}
+        }
+        // if player won, you need to end game
+        if (playerwon == true) {
+        	// disable all buttons
+        	for (var iterA=0; iterA < grid; iterA++) {
+        		for (var iterB=0; iterB < grid; iterB++) {
+        		document.getElementById("button_"+iterA+"_"+iterB).disabled = true;
+        		}
+        	}
+        	// tell winner
+            if (mygame.player == 0) {
+                document.getElementById("mygameinfo").innerHTML = "X has won!!";
+                // adds wincounter + for X
+                wins0++;
+                document.getElementById("wincounter0").innerHTML = "Wins for X: " + wins0;
+            }
+            else {
+                document.getElementById("mygameinfo").innerHTML = "O has won!!";
+                wins1++;
+                // adds wincounter + for O
+                document.getElementById("wincounter1").innerHTML = "Wins for O: " + wins1;
+            }
+        	// show new game button
+        		document.getElementById("newgame").style.visibility = "visible";
+        } 
+        else {
+	  	// if player did not won, turn changes and handling event ends
+            if (mygame.player == 0) {
+            	mygame.player = 1;
+                document.getElementById("mygameinfo").innerHTML = "O's Turn now";
+            }
+            else {
+              	mygame.player = 0;
+                document.getElementById("mygameinfo").innerHTML = "X's Turn now";
+            }
+        }
+    }
+}
+</script>
+</head>
+<body>
+<div id="logo_wrapper">
+    <img src="banner-final.jpg" border="0" alt="logo" />
+  </a>
+</div>
+    <p class="gameinfo" id="mygameinfo"></p>
+    <div><div id="mygametable"></div></div>
+    <p class="gameinfo" id ="wincounter0">Wins for X: _</p>
+    <p class="gameinfo" id ="wincounter1">Wins for O: _</p>
+    <p><button id="newgame-button" onclick="mygame=new Game();">New Game?</button></p>
+<script>
+	mygame = new Game();
+</script>
+</body>
+</html>
