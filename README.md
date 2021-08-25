@@ -1,2 +1,2 @@
 # tic-tac-toe
-Final version of tic-tac-toe by Tuomas Markkanen (code) and Jarmo Seppänen(visual)
+Final version of tic-tac-toe by Tuomas Markkanen (functionality) and Jarmo Seppänen(visual)
